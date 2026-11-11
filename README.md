@@ -44,8 +44,7 @@
 ├── DESIGN.md                        # 系統設計書 (含 ADR-001 ~ ADR-006)
 ├── README.md                        # 專案說明文件
 ├── google-services.json             # Firebase Android 設定檔 (cullio 專案)
-├── GoogleService-Info.plist         # Firebase iOS 設定檔 (cullio 專案)
-└── get_sha1.sh                      # 本機 Android Keystore 憑證指紋查詢腳本
+└── GoogleService-Info.plist         # Firebase iOS 設定檔 (cullio 專案)
 ```
 
 ---
