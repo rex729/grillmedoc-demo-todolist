@@ -23,6 +23,12 @@ c:\Workspace\GrillMeDocDemo\
 │       └── grill-me-doc/            # 深度訪談與規格文檔化 Skill
 ├── SPEC.md                          # 功能與需求規格書（含領域術語表）
 ├── DESIGN.md                        # 系統架構與技術設計書（含 ADR）
+├── toolchain.json               # 開發環境與 Toolchain 版本唯一真理來源 (SSOT)
+├── check_env.sh                 # Apple (macOS) / Linux / CI 預檢腳本入口
+├── check_env.bat                # Windows (CMD / PowerShell) 預檢腳本入口
+├── tool/                        # 專案層級跨平台預檢工具 (純 Dart 標準庫，與前後端解耦)
+│   ├── check_env.dart           # 預檢 CLI 入口 (dart tool/check_env.dart)
+│   └── toolchain_checker.dart   # 預檢核心比對模組
 ├── frontend/                        # Flutter 前端專案 (嚴格 MVC 分層)
 │   ├── test/                        # TDD 單元測試、Mock 服務與 Controller 測試
 │   └── lib/
@@ -38,7 +44,7 @@ c:\Workspace\GrillMeDocDemo\
 │               └── todo/            # 待辦清單模組 (Binding, Controller, View, Widgets)
 └── backend/                         # Node.js + Express 後端專案
     ├── package.json
-    ├── server.js                    # 監聽入口 (預設 Port 8080)
+    ├── server.js                    # 監聽入口 (預設 Port 1734，避開本機 Jenkins 8080)
     ├── src/
     │   ├── app.js                   # Express 應用設定與路由裝配
     │   ├── config/                  # Firebase Admin 設定
@@ -58,7 +64,7 @@ sequenceDiagram
     participant User as 使用者
     participant Flutter as Flutter App (GetX)
     participant GoogleAuth as Google / Firebase Auth
-    participant NodeAPI as Express API (:8080)
+    participant NodeAPI as Express API (:1734)
     participant Firestore as Cloud Firestore
 
     User->>Flutter: 點擊「Google 登入」按鈕
@@ -185,3 +191,30 @@ sequenceDiagram
   1. 資料庫結構乾淨，不殘留過期垃圾資料。
   2. 查詢端不需要額外過濾 `where("isDeleted", "==", false)`，省去索引複合查詢成本。
   3. 符合 MVP 階段輕量、精確的設計原則。
+
+---
+
+### ADR-007: 後端服務預設監聽 Port 1734
+* **狀態**：Accepted
+* **背景**：開發者環境中常駐 Jenkins 服務佔用 8080 連接埠，啟動後端時會發生 `EADDRINUSE` 錯誤。
+* **決策**：
+  1. 將後端 Express 服務預設監聽連接埠由 `8080` 改為 `1734`（仍保留 `PORT` 環境變數自訂彈性）。
+  2. 前端應用程式環境設定 (`AppConfig`) 之預設 Base URL 同步調整為 `http://localhost:1734`（Android 模擬器為 `http://10.0.2.2:1734`）。
+* **優點**：
+  1. 避免與本機 CI/CD 工具（如 Jenkins）產生連接埠衝突。
+  2. 開箱即用，降低本機開發聯調門檻。
+
+---
+
+### ADR-008: 建立 toolchain.json 唯一真理來源與跨平台 check_env 預檢機制
+* **狀態**：Accepted
+* **背景**：跨平台專案在不同開發機器或 CI/CD 執行器（Windows、macOS、Linux、Jenkins）上執行時，若缺少相依工具（例如 Android NDK 28.2、JDK 17+）或版本不相符，會在建置耗費數分鐘後才爆發難以辨識的錯誤。
+* **決策**：
+  1. **版本真理來源 (SSOT)**：於專案根目錄建立 `toolchain.json`，集中明確宣告 Flutter、Dart、JDK、Gradle、AGP、Android SDK、Android NDK 與 Node.js 的最低與推薦版本。
+  2. **核心檢查器**：以跨平台 Dart 撰寫核心預檢邏輯 `tool/check_env.dart`（位於專案根目錄 `tool/`，僅依賴 Dart 內建標準庫，與前後端業務代碼完全解耦），直接呼叫各 CLI 與檔案系統路徑進行版本矩陣比對，產出彩色防呆清單。
+  3. **外層薄包裝器**：提供根目錄 `check_env.sh` (Apple macOS / Linux / CI) 與 `check_env.bat` (Windows)，僅負責確保 `dart` 可執行，其餘邏輯 100% 委派給 `tool/check_env.dart`。各平台皆只有單一入口指令。
+  4. **失敗阻斷**：任一環境項目不符時輸出具體安裝指令並以 Exit Code 1 結束，阻止建置繼續進行。
+* **優點**：
+  1. 避免在 `.sh` 與 `.ps1` 重複實作脆弱的正則與 SemVer 版本比對邏輯，消弭跨平台語法地雷。
+  2. 集中於 `toolchain.json` 維護，版本升級時只需修改一處即可全平台生效。
+  3. 提早失敗（Fail Fast），提供明確單行修復指引，提升跨機器的協作體驗。

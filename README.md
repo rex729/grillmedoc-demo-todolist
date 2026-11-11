@@ -36,15 +36,70 @@
 .
 ├── .agents/
 │   └── skills/
-│       └── grill-me-doc/
-│           ├── SKILL.md             # grill-me-doc 深度訪談與文件化技能定義
-│           └── agents/openai.yaml   # Skill 配置元資料
+│       └── grill-me-doc/            # grill-me-doc 深度訪談與規格文檔化 Skill
 ├── AGENTS.md                        # AI 代理協作規範 (TDD 與 Flutter MVC 約束)
 ├── SPEC.md                          # 功能需求規格書 (含領域術語表 Glossary)
-├── DESIGN.md                        # 系統設計書 (含 ADR-001 ~ ADR-006)
+├── DESIGN.md                        # 系統架構設計書 (含 ADR-001 ~ ADR-008)
 ├── README.md                        # 專案說明文件
+├── toolchain.json                   # 跨平台 Toolchain 版本唯一真理來源 (SSOT)
+├── check_env.sh                     # Apple (macOS) / Linux / CI 預檢腳本入口
+├── check_env.bat                    # Windows (CMD / PowerShell) 預檢腳本入口
+├── tool/                            # 專案層級跨平台預檢工具 (純 Dart 內建模組，與前後端解耦)
+│   ├── check_env.dart               # 預檢 CLI 入口 (dart tool/check_env.dart)
+│   └── toolchain_checker.dart       # 預檢比對邏輯模組
 ├── google-services.json             # Firebase Android 設定檔 (cullio 專案)
-└── GoogleService-Info.plist         # Firebase iOS 設定檔 (cullio 專案)
+├── GoogleService-Info.plist         # Firebase iOS 設定檔 (cullio 專案)
+├── backend/                         # Node.js + Express 後端 API 服務
+│   ├── server.js                    # 監聽入口 (:1734)
+│   ├── src/                         # 應用程式原始碼 (Express, Router, Middleware, Repositories)
+│   └── test/                        # 後端 TDD 單元與 API 整合測試 (29 項全數通過)
+└── frontend/                        # Flutter 前端專案 (嚴格 MVC + GetX + Retrofit)
+    ├── lib/                         # 實體 (Entity)、DTO、Retrofit Service、Controller、View
+    └── test/                        # 前端 TDD 單元、Controller 與 Widget 測試 (55 項全數通過)
+```
+
+---
+
+## 🚀 執行與測試指南
+
+### 0. 跨平台 Toolchain 環境預檢 (Fail Fast)
+
+在執行任何建置或啟動前，可透過以下指令檢查本機環境（Flutter、Java、NDK、Gradle、Node.js）是否符合 [`toolchain.json`](./toolchain.json)：
+
+```bash
+# Linux / macOS / Apple / Jenkins CI
+./check_env.sh
+
+# Windows (CMD / PowerShell / Windows CI)
+check_env.bat
+```
+
+### 1. 後端測試與啟動
+
+```bash
+cd backend
+npm install
+
+# 執行 TDD 單元與 API 整合測試 (Node 原生測試執行器)
+npm test
+
+# 啟動 RESTful API 服務 (預設 Port 1734，避開本機 Jenkins 8080)
+npm start
+```
+
+### 2. 前端測試與程式碼生成
+
+```bash
+cd frontend
+
+# 執行程式碼生成 (Retrofit ApiService 與 JSON 序列化)
+dart run build_runner build --delete-conflicting-outputs
+
+# 執行靜態代碼分析 (0 warnings, 0 errors)
+flutter analyze
+
+# 執行 Flutter 全套單元與 Widget 測試
+flutter test
 ```
 
 ---
@@ -57,3 +112,5 @@
 * **ADR-004**：全端實施嚴格 TDD（測試驅動開發）紅綠循環
 * **ADR-005**：資料載入維持全量載入前端即時排序，暫不導入分頁
 * **ADR-006**：待辦事項刪除機制採用硬刪除（Hard Delete）
+* **ADR-007**：後端服務預設監聽 Port 1734（避開 Jenkins 8080 衝突）
+* **ADR-008**：建立 toolchain.json 唯一真理來源與跨平台 check_env 預檢機制

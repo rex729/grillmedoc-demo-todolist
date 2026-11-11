@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "project": "GrillMeDocDemo",
+  "description": "跨平台開發環境與 CI/CD Toolchain 版本唯一真理來源 (SSOT)",
+  "toolchain": {
+    "flutter": {
+      "channel": "stable",
+      "minVersion": "3.47.0",
+      "recommendedVersion": "3.47.9",
+      "description": "前端跨平台 UI 框架"
+    },
+    "dart": {
+      "minVersion": "3.13.0",
+      "recommendedVersion": "3.13.7",
+      "description": "Flutter 應用程式程式語言"
+    },
+    "java": {
+      "minVersion": 17,
+      "description": "Android 原生建置與 Gradle 執行環境 (支援 JDK 17+)"
+    },
+    "gradle": {
+      "exactVersion": "9.3.1",
+      "wrapperPath": "frontend/android/gradle/wrapper/gradle-wrapper.properties",
+      "description": "Android 建置自動化工具"
+    },
+    "androidGradlePlugin": {
+      "version": "9.1.0",
+      "settingsPath": "frontend/android/settings.gradle.kts",
+      "description": "AGP 外掛模組"
+    },
+    "androidSdk": {
+      "minCompileSdk": 34,
+      "recommendedCompileSdk": 37,
+      "description": "Android 平台編譯 SDK"
+    },
+    "androidNdk": {
+      "requiredVersion": "28.2.13676358",
+      "description": "AGP 9.1 依賴之 NDK 28.2 版本",
+      "installCommand": "android sdk install \"ndk/28.2.13676358\""
+    },
+    "node": {
+      "minVersion": "20.0.0",
+      "recommendedVersion": "24.12.0",
+      "description": "後端 RESTful API 執行環境"
+    }
+  }
+}
