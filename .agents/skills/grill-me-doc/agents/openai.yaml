@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grill Me Doc"
+  short_description: "Sharpen a plan through interview and document it"
+policy:
+  allow_implicit_invocation: false
