@@ -11,6 +11,7 @@
 | **第三方認證** | **Firebase Auth** | `google_sign_in`, `firebase_auth` | 原生 Google 登入換取 Firebase ID Token，作為後端無狀態鑑權憑證 |
 | **後端伺服器** | **Node.js + Express** | 原生測試執行器 (`node --test`) | 輕量化 REST API 架構，提供 Middleware 鑑權、輸入校驗與 Firestore 存取 |
 | **資料庫儲存** | **Cloud Firestore** | `firebase-admin` SDK | Google Cloud NoSQL 文件資料庫，利用使用者子集合實現天然資料隔離 |
+| **環境預檢關卡** | **跨平台 check_env** | `check_env.bat` / `check_env.sh` | **強制前置要求**：進入專案或執行建置測試前必須優先執行預檢，確保環境符合 `toolchain.json` |
 
 ---
 
@@ -85,6 +86,12 @@ sequenceDiagram
   * **iOS URL Scheme (`REVERSED_CLIENT_ID`)**：`com.googleusercontent.apps.590561728933-6cjm09g6jksp28nmmv8u3tpamjmhihef`
   * **Web OAuth Client ID (`client_type: 3`)**：`590561728933-fjn1uljkjagqhftnbjaq62btm6q8g87k.apps.googleusercontent.com`
   * **後端認證私鑰**：預期透過環境變數 `GOOGLE_APPLICATION_CREDENTIALS` 或放置於 `backend/serviceAccountKey.json` 進行初始化。
+
+* **原生應用識別碼與雲端憑證對齊規範 (Platform App Identifiers & Cloud Config Parity)**：
+  * **唯一真理來源 (SSOT)**：
+    * **Android**：以 `google-services.json` 中的 `package_name` 為真理來源。
+    * **iOS**：以 `GoogleService-Info.plist` 中的 `BUNDLE_ID` 為真理來源。
+  * **對齊原則**：原生層（`build.gradle.kts`、`MainActivity.kt`、`project.pbxproj`）必須完全無條件對齊此真理來源，嚴禁自行宣告相異之 ID。
 
 ---
 
@@ -214,7 +221,22 @@ sequenceDiagram
   2. **核心檢查器**：以跨平台 Dart 撰寫核心預檢邏輯 `tool/check_env.dart`（位於專案根目錄 `tool/`，僅依賴 Dart 內建標準庫，與前後端業務代碼完全解耦），直接呼叫各 CLI 與檔案系統路徑進行版本矩陣比對，產出彩色防呆清單。
   3. **外層薄包裝器**：提供根目錄 `check_env.sh` (Apple macOS / Linux / CI) 與 `check_env.bat` (Windows)，僅負責確保 `dart` 可執行，其餘邏輯 100% 委派給 `tool/check_env.dart`。各平台皆只有單一入口指令。
   4. **失敗阻斷**：任一環境項目不符時輸出具體安裝指令並以 Exit Code 1 結束，阻止建置繼續進行。
+  5. **強制優先執行約束**：所有開發人員、AI 代理人與 CI/CD 流程在進行程式碼撰寫、測試或建置前，**必須優先執行環境預檢腳本**（Windows: `check_env.bat`、macOS/Linux: `./check_env.sh`），若預檢未達綠燈通過狀態，一律禁止進行後續動作。
 * **優點**：
   1. 避免在 `.sh` 與 `.ps1` 重複實作脆弱的正則與 SemVer 版本比對邏輯，消弭跨平台語法地雷。
   2. 集中於 `toolchain.json` 維護，版本升級時只需修改一處即可全平台生效。
   3. 提早失敗（Fail Fast），提供明確單行修復指引，提升跨機器的協作體驗。
+
+---
+
+### ADR-009: 原生應用識別碼與雲端憑證對齊規範 (Platform App Identifiers & Cloud Config Parity)
+* **狀態**：Accepted
+* **背景**：跨平台專案（Flutter）在初始化時常因腳手架 CLI 預設行為（例如依資料夾名稱自動產生 `com.cullio.frontend`）而與雲端平台（Firebase/GCP）既有憑證設定脫節，進而引發原生層啟動崩潰（如 `ClassNotFoundException`）。
+* **決策**：
+  1. **唯一真理來源 (SSOT)**：
+     * **Android**：以 `google-services.json` 中的 `package_name` 為真理來源。
+     * **iOS**：以 `GoogleService-Info.plist` 中的 `BUNDLE_ID` 為真理來源。
+  2. **對齊原則**：原生層（`build.gradle.kts`、`MainActivity.kt`、`project.pbxproj`）必須完全無條件對齊此真理來源，嚴禁自行宣告相異之 ID。
+* **優點**：
+  1. 確立雲端設定檔的最高權威性，消弭人為重複宣告與拼寫錯誤。
+  2. 確保原生層程式碼目錄、Manifest 與雲端 OAuth/Firebase 驗證 100% 吻合。

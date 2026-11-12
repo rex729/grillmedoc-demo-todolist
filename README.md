@@ -62,9 +62,9 @@
 
 ## 🚀 執行與測試指南
 
-### 0. 跨平台 Toolchain 環境預檢 (Fail Fast)
+### 0. 跨平台 Toolchain 環境預檢 (強制優先執行 / Fail Fast)
 
-在執行任何建置或啟動前，可透過以下指令檢查本機環境（Flutter、Java、NDK、Gradle、Node.js）是否符合 [`toolchain.json`](./toolchain.json)：
+**⚠️ 強制規範**：在進行任何專案開發、建置、執行測試或啟動服務之前，**必須優先執行**環境預檢腳本，確保本機開發環境（Flutter、Java、NDK、Gradle、Node.js）完全符合 [`toolchain.json`](./toolchain.json) 規格要求：
 
 ```bash
 # Linux / macOS / Apple / Jenkins CI
@@ -73,6 +73,8 @@
 # Windows (CMD / PowerShell / Windows CI)
 check_env.bat
 ```
+
+* **阻斷原則**：若輸出包含 `[✗]`（退出碼非零），系統會輸出具體修復指引，此時**嚴禁跳過預檢逕行建置或提交代碼**，必須修復至全數顯示 `[✓]`（Exit Code 0）為止。
 
 ### 1. 後端測試與啟動
 
