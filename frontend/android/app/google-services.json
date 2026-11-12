@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "590561728933",
+    "project_id": "cullio",
+    "storage_bucket": "cullio.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590561728933:android:3795c49cf19753f2e8f04c",
+        "android_client_info": {
+          "package_name": "com.cullio.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "590561728933-dcn7ckvpls0v6fvqtu0qj9oaqbhe68c7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cullio.android",
+            "certificate_hash": "9f8e4a163d0b14ac566942904da34558a3e9834d"
+          }
+        },
+        {
+          "client_id": "590561728933-fjn1uljkjagqhftnbjaq62btm6q8g87k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4fnuIEKqt3r0OEFgrjjnEokMDDF3faLQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "590561728933-fjn1uljkjagqhftnbjaq62btm6q8g87k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "590561728933-6cjm09g6jksp28nmmv8u3tpamjmhihef.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cullio"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

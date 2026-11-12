@@ -1,8 +1,13 @@
 # 忽略敏感憑證與 Token
 .tmp_token
 backend/serviceAccountKey.json
+config/serviceAccountKey.json
 *firebase-adminsdk*.json
 .env
+
+# IDE
+.idea/
+.vscode/
 
 # Node.js
 backend/node_modules/
